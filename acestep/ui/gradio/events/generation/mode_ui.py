@@ -207,10 +207,9 @@ def handle_extract_src_audio_change(src_audio_path, mode: str):
         return gr.update()
     try:
         import soundfile as sf
-        info = sf.info(src_audio_path)
-        duration = int(info.duration)
-        if duration and duration > 0:
-            return gr.update(value=float(duration))
+        duration = float(sf.info(src_audio_path).duration)
+        if duration > 0:
+            return gr.update(value=duration)
     except Exception as e:
         logger.warning(f"Failed to get audio duration for {mode} mode: {e}")
     return gr.update()

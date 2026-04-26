@@ -242,12 +242,12 @@ class ExtractSrcAudioDurationTests(unittest.TestCase):
     def test_returns_noop_for_non_extract_lego_mode(self):
         """Non-Extract/Lego modes should return an empty update without inspecting the file."""
         result = handle_extract_src_audio_change("/anywhere/file.wav", "Custom")
-        self.assertNotIn("value", getattr(result, "_props", {}) or {})
+        self.assertNotIn("value", result)
 
     def test_returns_noop_for_empty_src_audio(self):
         """Empty src_audio should short-circuit without raising."""
         result = handle_extract_src_audio_change("", "Extract")
-        self.assertNotIn("value", getattr(result, "_props", {}) or {})
+        self.assertNotIn("value", result)
 
     def test_reads_duration_from_gradio_temp_path_without_safe_path(self):
         """A Gradio temp path outside the project safe root must NOT raise."""
@@ -257,15 +257,15 @@ class ExtractSrcAudioDurationTests(unittest.TestCase):
         with patch("soundfile.info", return_value=fake_info) as mock_info:
             result = handle_extract_src_audio_change(gradio_temp_path, "Extract")
             mock_info.assert_called_once_with(gradio_temp_path)
-        # Result should carry a positive numeric value without exception.
-        self.assertEqual(getattr(result, "_props", {}).get("value"), 42.0)
+        # gr.update(value=...) returns a plain dict; assert directly.
+        self.assertEqual(result.get("value"), 42.7)
 
     def test_swallows_invalid_audio_errors(self):
         """A bad/unreadable file should be logged-and-skipped, not raised."""
         from unittest.mock import patch
         with patch("soundfile.info", side_effect=RuntimeError("bad file")):
             result = handle_extract_src_audio_change("/tmp/bogus.wav", "Lego")
-        self.assertNotIn("value", getattr(result, "_props", {}) or {})
+        self.assertNotIn("value", result)
 
 
 if __name__ == "__main__":
