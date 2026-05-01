@@ -21,7 +21,7 @@ def can_save_generation_session_artifacts(result: Any) -> bool:
     Returns:
         ``True`` when every output track has matching final latents. This is
         intentionally capability-based rather than task-name-based so any
-        ACE-generated result with saved latents can become a repaint source.
+        ACE-generated result with saved latents can carry reusable metadata.
     """
     if not getattr(result, "success", False):
         return False

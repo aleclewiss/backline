@@ -1,4 +1,4 @@
-"""Session artifact helpers for generated-source repaint."""
+"""Session artifact helpers for generated audio outputs."""
 
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ def resolve_repaint_mode(mode: str, source_session_dir: Optional[str] = None) ->
 
 
 def load_source_session_track(session_dir: str, track_index: int = 1) -> dict[str, Any]:
-    """Load generated-source artifacts used by session-backed repaint.
+    """Load saved generated-output artifacts for a single track.
 
     Args:
         session_dir: Directory containing session artifacts.

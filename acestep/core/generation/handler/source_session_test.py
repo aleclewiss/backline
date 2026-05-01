@@ -1,4 +1,4 @@
-"""Tests for session-backed repaint artifact helpers."""
+"""Tests for generated-output session artifact helpers."""
 
 import json
 import tempfile
@@ -21,7 +21,7 @@ from acestep.core.generation.handler.source_session_save import (
 
 
 class SourceSessionTests(unittest.TestCase):
-    """Verify generated-source session loading and mode resolution."""
+    """Verify generated-output session loading and mode resolution."""
 
     def test_auto_mode_resolves_to_balanced_with_or_without_session(self):
         """Auto mode should keep the standard repaint path."""

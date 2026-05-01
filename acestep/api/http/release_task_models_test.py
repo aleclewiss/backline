@@ -43,12 +43,11 @@ class ReleaseTaskModelsTests(unittest.TestCase):
         self.assertEqual("balanced", req.repaint_mode)
         self.assertEqual("/tmp/source-session", req.source_session_dir)
 
-    def test_legacy_retake_mode_alias_normalizes_to_balanced(self):
-        """Legacy retake API clients should fall back to the supported path."""
+    def test_retake_is_not_a_public_repaint_mode(self):
+        """Article-style retake should not be accepted as a repaint mode."""
 
-        req = GenerateMusicRequest(repaint_mode="retake")
-
-        self.assertEqual("balanced", req.repaint_mode)
+        with self.assertRaises(ValueError):
+            GenerateMusicRequest(repaint_mode="retake")
 
 
 if __name__ == "__main__":

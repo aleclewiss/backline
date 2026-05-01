@@ -18,10 +18,7 @@ import torch
 
 from acestep.audio_utils import AudioSaver, apply_fade, generate_uuid_from_params, normalize_audio, get_lora_weights_hash
 from acestep.constants import BPM_MIN, BPM_MAX, DURATION_MAX, TASK_TYPES, VALID_TIME_SIGNATURES
-from acestep.core.generation.handler.source_session import (
-    load_source_session_track,
-    resolve_repaint_mode,
-)
+from acestep.core.generation.handler.source_session import resolve_repaint_mode
 from acestep.core.generation.handler.source_session_save import (
     save_generation_session_artifacts,
 )
@@ -427,23 +424,6 @@ def generate_music(
         dit_input_vocal_language = params.vocal_language
         dit_input_lyrics = params.lyrics
         effective_repaint_mode = resolve_repaint_mode(params.repaint_mode, params.source_session_dir)
-        source_repaint_latents = None
-
-        if params.task_type == "repaint" and params.source_session_dir:
-            source_track = load_source_session_track(
-                params.source_session_dir,
-                params.source_track_index,
-            )
-            source_repaint_latents = source_track["latents"]
-            audio_duration = source_track["duration"]
-            logger.info(
-                "[session_repaint] Loaded source session={} track={} duration={:.2f}s "
-                "latents_shape={}",
-                params.source_session_dir,
-                params.source_track_index,
-                float(audio_duration),
-                tuple(source_repaint_latents.shape),
-            )
         # Determine if we need to generate audio codes
         # If user has provided audio_codes, we don't need to generate them
         # Otherwise, check if we need audio codes (lm_dit mode) or just metas (dit mode)
@@ -730,10 +710,6 @@ def generate_music(
             "repaint_wav_crossfade_sec": params.repaint_wav_crossfade_sec,
             "repaint_mode": effective_repaint_mode,
             "repaint_strength": params.repaint_strength,
-            "source_session_dir": params.source_session_dir,
-            "source_track_index": params.source_track_index,
-            "repainting_regions": params.repainting_regions,
-            "source_repaint_latents": source_repaint_latents,
             "retake_seed": params.retake_seed,
             "retake_variance": params.retake_variance,
             "flow_edit_morph": params.flow_edit_morph,

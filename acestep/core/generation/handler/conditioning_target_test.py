@@ -44,43 +44,39 @@ class _Host(ConditioningTargetMixin):
 
 
 class ConditioningTargetMixinTests(unittest.TestCase):
-    """Verify source-session latents can replace VAE-encoded source audio."""
+    """Verify target audio is encoded through the standard VAE path."""
 
-    def test_source_repaint_latents_skip_vae_encode_and_pad_with_silence(self):
-        """Session latents should become target latents for repaint conditioning."""
+    def test_non_silent_target_wav_is_vae_encoded(self):
+        """Non-silent repaint sources should use VAE-encoded source audio."""
         host = _Host()
         target_wavs = torch.ones(1, 2, 4 * 1920)
-        source_latents = torch.ones(2, 3) * 5.0
 
         _, target_latents, latent_masks, max_len, _ = host._prepare_target_latents_and_wavs(
             batch_size=1,
             target_wavs=target_wavs,
             audio_code_hints=[None],
-            source_repaint_latents=source_latents,
         )
 
-        self.assertEqual(0, host.encode_calls)
+        self.assertEqual(1, host.encode_calls)
         self.assertEqual(128, max_len)
-        torch.testing.assert_close(target_latents[0, :2], source_latents)
-        torch.testing.assert_close(target_latents[0, 2:4], torch.zeros(2, 3))
+        torch.testing.assert_close(target_latents[0, :4], torch.ones(4, 3) * 9.0)
         self.assertEqual(4, int(latent_masks[0].sum().item()))
 
-    def test_source_repaint_latents_expand_single_track_to_batch(self):
-        """A single saved track can seed all samples in a repaint batch."""
+    def test_identical_target_wavs_reuse_cached_vae_latent(self):
+        """Identical source audio within a batch should only encode once."""
         host = _Host()
         target_wavs = torch.ones(2, 2, 3 * 1920)
-        source_latents = torch.arange(9, dtype=torch.float32).reshape(3, 3)
 
         _, target_latents, latent_masks, _, _ = host._prepare_target_latents_and_wavs(
             batch_size=2,
             target_wavs=target_wavs,
             audio_code_hints=[None, None],
-            source_repaint_latents=source_latents,
         )
 
-        torch.testing.assert_close(target_latents[0, :3], source_latents)
-        torch.testing.assert_close(target_latents[1, :3], source_latents)
-        self.assertEqual([3, 3], latent_masks.sum(dim=1).tolist())
+        self.assertEqual(1, host.encode_calls)
+        torch.testing.assert_close(target_latents[0, :3], torch.ones(3, 3) * 9.0)
+        torch.testing.assert_close(target_latents[1, :3], torch.ones(3, 3) * 9.0)
+        self.assertEqual([4, 4], latent_masks.sum(dim=1).tolist())
 
 
 if __name__ == "__main__":

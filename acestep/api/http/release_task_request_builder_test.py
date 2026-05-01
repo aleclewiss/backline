@@ -135,7 +135,7 @@ class ReleaseTaskRequestBuilderTests(unittest.TestCase):
         self.assertAlmostEqual(0.6, request.cover_noise_strength)
 
     def test_build_request_forwards_source_session_fields(self):
-        """Builder should include generated-source repaint request fields."""
+        """Builder should include generated-output session request fields."""
         parser = _FakeParser(
             {
                 "repaint_mode": "balanced",

@@ -150,7 +150,7 @@ def build_repainting_controls() -> dict[str, Any]:
                 label="Repaint Mode",
                 choices=["auto", "conservative", "balanced", "aggressive"],
                 value="auto",
-                info="auto uses balanced; generated sources reuse saved session latents when available",
+                info="auto uses balanced",
             )
             repaint_strength = gr.Slider(
                 label="Repaint Strength",

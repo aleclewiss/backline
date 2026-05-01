@@ -91,7 +91,7 @@ class GenerateMusicRequest(BaseModel):
     )
     source_session_dir: Optional[str] = Field(
         default=None,
-        description="Reusable ACE-Step source session directory for generated-source repaint.",
+        description="Reusable ACE-Step source session directory for generated outputs.",
     )
     source_track_index: int = Field(
         default=1,
@@ -104,7 +104,7 @@ class GenerateMusicRequest(BaseModel):
     )
     save_session_artifacts: bool = Field(
         default=False,
-        description="Persist generated final latents for future session-backed repaint.",
+        description="Persist generated output artifacts for later reuse.",
     )
     session_output_dir: Optional[str] = Field(
         default=None,
@@ -156,7 +156,7 @@ class GenerateMusicRequest(BaseModel):
     @field_validator("repaint_mode", mode="before")
     @classmethod
     def _normalize_repaint_mode(cls, value):
-        """Accept legacy retake aliases while storing the public mode label."""
+        """Normalize repaint mode casing before literal validation."""
         return normalize_repaint_mode_alias(value)
 
     class Config:

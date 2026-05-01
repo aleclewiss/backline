@@ -484,8 +484,8 @@ def _persist_gradio_source_session(
 ) -> None:
     """Save hidden source-session artifacts for generated Gradio outputs.
 
-    The artifacts are used by "Send To Repaint" to reuse final latents without
-    exposing filesystem fields in the UI.
+    The artifacts annotate generated results so "Send To Repaint" can carry
+    source identity without exposing filesystem fields in the UI.
     """
     if not can_save_generation_session_artifacts(result):
         return

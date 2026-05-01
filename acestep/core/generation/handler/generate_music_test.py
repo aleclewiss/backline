@@ -205,8 +205,8 @@ class GenerateMusicMixinTests(unittest.TestCase):
         self.assertEqual(out["error"], "boom")
         self.assertIn("Error: boom", out["status_message"])
 
-    def test_session_repaint_keeps_repaint_task_and_forwards_source_latents(self):
-        """Session-backed repaint should use normal repaint conditioning."""
+    def test_auto_repaint_keeps_repaint_task_on_standard_path(self):
+        """Auto repaint mode should still use the standard repaint service path."""
         host = _Host()
         host._readiness_error = None
 
@@ -214,14 +214,12 @@ class GenerateMusicMixinTests(unittest.TestCase):
             host.calls["_resolve_generate_music_task"] = kwargs
             return "repaint", "repaint instruction"
 
-        source_latents = torch.ones(4, 3)
         host._resolve_generate_music_task = _resolve_as_repaint
         out = host.generate_music(
             captions="cap",
             lyrics="lyr",
             task_type="repaint",
             repaint_mode="auto",
-            source_repaint_latents=source_latents,
             repainting_start=1.0,
             repainting_end=2.0,
         )
@@ -239,10 +237,8 @@ class GenerateMusicMixinTests(unittest.TestCase):
             "repaint",
             host.calls["_run_generate_music_service_with_progress"]["task_type"],
         )
-        self.assertIs(
-            source_latents,
-            host.calls["_run_generate_music_service_with_progress"]["source_repaint_latents"],
-        )
+        legacy_key = "source_" + "repaint_latents"
+        self.assertNotIn(legacy_key, host.calls["_run_generate_music_service_with_progress"])
 
 
 class VramPreflightCheckTests(unittest.TestCase):
