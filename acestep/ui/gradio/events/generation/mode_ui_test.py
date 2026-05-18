@@ -101,7 +101,7 @@ class ModeUiStateClearingTests(unittest.TestCase):
         """Remix should keep the standard cover task and source-audio controls."""
         llm_handler = SimpleNamespace(llm_initialized=True)
         result = compute_mode_ui_updates("Remix", llm_handler=llm_handler, previous_mode="Custom")
-        self.assertEqual(result[_IDX_TASK_TYPE].get("value"), "cover")
+        self.assertEqual(result[_IDX_TASK_TYPE], "cover")
         self.assertTrue(result[_IDX_SRC_AUDIO_ROW].get("visible"))
         self.assertEqual(result[_IDX_AUDIO_CODES].get("value"), "")
         self.assertFalse(result[_IDX_AUDIO_CODES].get("visible"))
