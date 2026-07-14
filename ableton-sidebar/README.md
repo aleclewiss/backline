@@ -76,10 +76,12 @@ without depending on Live's older bundled Node runtime.
    ```
    start_api_server.bat        # serves on http://127.0.0.1:8001
    ```
-   The repo's `.env` carries the GPU-critical settings
+   On 8 GB GPUs, launch it with the GPU-critical settings
    (`ACESTEP_DTYPE=float32`, `ACESTEP_OFFLOAD_DIT_TO_CPU=true`,
-   `ACESTEP_QUANTIZATION=auto`). On 8 GB GPUs, without them, a single loop can
-   take an hour (CPU-decode / swap path). The **first** generation after a
+   `ACESTEP_QUANTIZATION=auto`) — set them in a repo-root `.env` (see
+   `.env.example`) or use `start_ableton_sidebar.bat`, which sets them for
+   you. Without them a single loop can take an hour (CPU-decode / swap
+   path). The **first** generation after a
    server start triggers a one-time model load + INT8 quantization
    (~10–20 min); the UI shows "loading models" and waits automatically.
 
@@ -183,7 +185,7 @@ status, live logs, and a one-click "Copy full report". Same data at
 | --- | --- |
 | "Engine offline" banner | Start the API server; check Settings → engine URL; `GET /health` should answer. Or hit **Fix it**. |
 | Fails instantly with NaN / silent audio | Launch the engine with `ACESTEP_DTYPE=float32` (required on GTX 10xx). |
-| A single loop takes 30+ min | Engine running unquantized/un-offloaded — ensure `ACESTEP_QUANTIZATION=auto` and `ACESTEP_OFFLOAD_DIT_TO_CPU=true` (they're in this repo's `.env`). |
+| A single loop takes 30+ min | Engine running unquantized/un-offloaded — ensure `ACESTEP_QUANTIZATION=auto` and `ACESTEP_OFFLOAD_DIT_TO_CPU=true` (set in your `.env`, or launch via `start_ableton_sidebar.bat` which sets them). |
 | Stuck at "loading models" | Normal one-time model load + quantization per engine start (~10–20 min on slow machines). |
 | Engine wedged / offline after a crash | **Fix it** — revives the engine, kills stale venv python, reloads models, retries the job. |
 | Chat says "needs API key" | Add a provider key in Settings. |

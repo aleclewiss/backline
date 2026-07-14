@@ -1,3 +1,55 @@
+<p align="center">
+    <img src="./ableton-sidebar/shell/assets/backline.png" height="96" alt="Backline">
+</p>
+<h1 align="center">Backline</h1>
+<p align="center"><b>Turn a prompt into a finished-sounding song.</b><br>
+A standalone desktop music studio for the open-source ACE-Step model —
+describe the vibe, write (or auto-generate) lyrics, audition takes, and drag
+the result into any DAW. Optional Ableton Live link for tempo/key sync and
+clip drop-in.</p>
+
+> Product & creative direction by Alec Lewis. Application developed with AI
+> coding assistance.
+
+**📖 [Full Backline documentation →](./ableton-sidebar/README.md)** — features,
+architecture, Ableton Live setup, troubleshooting, and honest known limits.
+Design narrative in [JOURNAL.md](./ableton-sidebar/JOURNAL.md).
+
+## Backline quick start
+
+You need: an NVIDIA GPU (8 GB works — the launcher applies low-VRAM-safe
+settings), Python (installed by the engine setup below), and Node 18+.
+
+1. **Set up the ACE-Step engine** — run `install_uv.bat` (Windows) or
+   `install_uv.sh`, per the upstream [Quick Start](#-quick-start) below. Models
+   download on first run.
+2. **Build the Backline UI** (once, and after UI changes):
+   ```
+   cd ableton-sidebar/ui && npm install && npm run build
+   ```
+3. **Launch** — `start_ableton_sidebar.bat` starts the engine (port 8001) and
+   the Backline sidecar (port 8765) with GPU-safe settings
+   (`ACESTEP_DTYPE=float32`, `ACESTEP_OFFLOAD_DIT_TO_CPU=true`,
+   `ACESTEP_QUANTIZATION=auto`) already set. The first generation triggers a
+   one-time model load + quantization — how long it takes depends on your
+   hardware; the UI shows "loading models" and waits automatically.
+4. Open **http://127.0.0.1:8765**, type a prompt, hit Generate — or run the
+   desktop app: `cd ableton-sidebar/shell && npm install && npm start`.
+
+The optional **chat assistant** is bring-your-own-key (Anthropic / OpenAI /
+OpenRouter / any OpenAI-compatible endpoint); keys stay in
+`~/.ace-sidebar/config.json` on your machine. Generation needs no key.
+
+---
+
+*Everything below is the upstream **ACE-Step 1.5** documentation — the music
+engine Backline runs on. This repo is a fork of
+[ACE-Step/ACE-Step-1.5](https://github.com/ACE-Step/ACE-Step-1.5) that adds
+Backline in [`ableton-sidebar/`](./ableton-sidebar/) plus small patches for
+running on 8 GB GPUs.*
+
+---
+
 <h1 align="center">ACE-Step 1.5</h1>
 <h1 align="center">Pushing the Boundaries of Open-Source Music Generation</h1>
 <p align="center">
