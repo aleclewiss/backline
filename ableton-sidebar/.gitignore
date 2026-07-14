@@ -2,3 +2,6 @@ node_modules/
 sidecar/public/
 logs/
 *.log
+# Re-include what the root Python .gitignore over-matches (lib/, package-lock.json)
+!sidecar/lib/
+!package-lock.json
