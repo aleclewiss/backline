@@ -12,6 +12,32 @@ from acestep.gpu_config import (
 )
 
 
+def _resolve_quantization(gpu_config: Any) -> Optional[str]:
+    """Resolve DiT quantization for API-server model init from ``ACESTEP_QUANTIZATION``.
+
+    Unset/``none`` keeps the historical API-server behavior (no quantization).
+    ``auto`` mirrors the pipeline CLI's GPU-tier default (int8_weight_only,
+    or w8a8_dynamic on pre-Volta CUDA). Any other value is passed through.
+    """
+
+    value = os.getenv("ACESTEP_QUANTIZATION", "").strip().lower()
+    if value in ("", "none", "off", "false", "0"):
+        return None
+    if value != "auto":
+        return value
+    if not gpu_config.quantization_default:
+        return None
+    quantization = "int8_weight_only"
+    try:
+        import torch
+
+        if torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0] < 7:
+            quantization = "w8a8_dynamic"
+    except Exception:
+        pass
+    return quantization
+
+
 def _resolve_slot(
     app_state: Any,
     slot: Optional[int],
@@ -105,6 +131,7 @@ def initialize_models_for_request(
     offload_dit_to_cpu = env_bool("ACESTEP_OFFLOAD_DIT_TO_CPU", False)
     compile_model = env_bool("ACESTEP_COMPILE_MODEL", False)
     device = os.getenv("ACESTEP_DEVICE", "auto")
+    quantization = _resolve_quantization(gpu_config)
 
     ensure_model_downloaded(target_model, checkpoint_dir)
     ensure_model_downloaded("vae", checkpoint_dir)
@@ -117,6 +144,7 @@ def initialize_models_for_request(
         compile_model=compile_model,
         offload_to_cpu=offload_to_cpu,
         offload_dit_to_cpu=offload_dit_to_cpu,
+        quantization=quantization,
     )
     if not ok:
         setattr(app_state, error_attr, status_msg)

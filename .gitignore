@@ -261,3 +261,8 @@ docs/.vitepress/dist/
 docs/.vitepress/cache/
 docs/en/awesome.md
 package-lock.json
+# Local machine artifacts — never publish
+SESSION_STATUS.md
+*.err
+*.out
+lora_adapters/

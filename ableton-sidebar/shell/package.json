@@ -1,0 +1,14 @@
+{
+  "name": "backline-shell",
+  "productName": "Backline",
+  "version": "0.1.0",
+  "description": "Backline - AI session player for Ableton Live (desktop shell)",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^37.0.0"
+  }
+}

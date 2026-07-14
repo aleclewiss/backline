@@ -55,6 +55,41 @@ def _apply_malloc_mmap_threshold() -> None:
 _apply_malloc_mmap_threshold()
 
 
+# Cached availability flag for the Windows working-set trim below.
+_WIN_TRIM_UNAVAILABLE = False
+
+
+def _trim_windows_working_set() -> None:
+    """Return trimmed working-set pages to the OS on Windows.
+
+    Windows analog of glibc ``malloc_trim``.  The CPU-offload workflow creates
+    fresh tensor storage on every device transfer, and on Windows the freed
+    storage is not returned to the OS by the default allocator.  Across
+    repeated offload cycles this accretes process RSS until a large transfer
+    (e.g. moving the float32 quantized DiT back to CPU) fails under memory
+    pressure — observed as a native segfault mid-offload on 16 GB machines.
+    ``SetProcessWorkingSetSize(handle, -1, -1)`` signals the OS to trim the
+    working set, releasing physical pages.
+    """
+    global _WIN_TRIM_UNAVAILABLE
+    if _WIN_TRIM_UNAVAILABLE or platform.system() != "Windows":
+        return
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.windll.kernel32
+        set_ws = kernel32.SetProcessWorkingSetSize
+        set_ws.argtypes = [wintypes.HANDLE, ctypes.c_size_t, ctypes.c_size_t]
+        set_ws.restype = wintypes.BOOL
+        # (SIZE_T)-1 for both min and max tells Windows to trim the working
+        # set to the minimum, returning physical pages to the OS.
+        set_ws(kernel32.GetCurrentProcess(), ctypes.c_size_t(-1), ctypes.c_size_t(-1))
+    except Exception as exc:
+        _WIN_TRIM_UNAVAILABLE = True
+        logger.debug("[memory] Windows working-set trim unavailable: {}", exc)
+
+
 class InitServiceMemoryBasicMixin:
     """Memory cache, sync, and tensor-device utility helpers."""
 
@@ -132,22 +167,50 @@ class InitServiceMemoryBasicMixin:
             )
         return None
 
+    @staticmethod
+    def _get_linear_activation_quantized_tensor_class():
+        """Return torchao's LinearActivationQuantizedTensor class (produced by
+        w8a8_dynamic quantization), or None if unavailable."""
+        try:
+            from torchao.quantization.linear_activation_quantized_tensor import (
+                LinearActivationQuantizedTensor,
+            )
+            return LinearActivationQuantizedTensor
+        except Exception as exc:
+            logger.debug(
+                "[_get_linear_activation_quantized_tensor_class] failed to import "
+                "LinearActivationQuantizedTensor from torchao: {}",
+                exc,
+            )
+            return None
+
     def _is_quantized_tensor(self, t):
-        """True if ``t`` is a torchao AffineQuantizedTensor."""
+        """True if ``t`` is any torchao quantized tensor.
+
+        Covers AffineQuantizedTensor (int8_weight_only / fp8) and
+        LinearActivationQuantizedTensor (w8a8_dynamic).  Falls back to a
+        generic check for ``_apply_fn_to_data`` — the method every torchao
+        quantized tensor exposes and that ``_move_quantized_param`` relies on;
+        plain tensors/parameters do not have it.
+        """
         if t is None:
             return False
-        cls = self._get_affine_quantized_tensor_class()
-        if cls is None:
-            return False
-        return isinstance(t, cls)
+        classes = tuple(
+            c
+            for c in (
+                self._get_affine_quantized_tensor_class(),
+                self._get_linear_activation_quantized_tensor_class(),
+            )
+            if c is not None
+        )
+        if classes and isinstance(t, classes):
+            return True
+        return hasattr(t, "_apply_fn_to_data")
 
     def _has_quantized_params(self, module):
-        """True if module (or any submodule) has an AffineQuantizedTensor parameter."""
-        cls = self._get_affine_quantized_tensor_class()
-        if cls is None:
-            return False
+        """True if module (or any submodule) has a torchao quantized parameter."""
         for _, param in module.named_parameters():
-            if param is not None and isinstance(param, cls):
+            if self._is_quantized_tensor(param):
                 return True
         return False
 
@@ -235,3 +298,4 @@ class InitServiceMemoryBasicMixin:
                 libc.malloc_trim(0)
             except Exception:
                 pass
+        _trim_windows_working_set()
