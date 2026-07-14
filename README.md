@@ -36,9 +36,10 @@ settings), Python (installed by the engine setup below), and Node 18+.
 4. Open **http://127.0.0.1:8765**, type a prompt, hit Generate — or run the
    desktop app: `cd ableton-sidebar/shell && npm install && npm start`.
 
-The optional **chat assistant** is bring-your-own-key (Anthropic / OpenAI /
-OpenRouter / any OpenAI-compatible endpoint); keys stay in
-`~/.ace-sidebar/config.json` on your machine. Generation needs no key.
+The optional **chat assistant** is your own AI: add your own API key in
+Settings (Anthropic / OpenAI / OpenRouter / any OpenAI-compatible endpoint)
+and that model assists you in-app. No key ships with Backline — yours stays
+in `~/.ace-sidebar/config.json` on your machine. Generation needs no key.
 
 ---
 

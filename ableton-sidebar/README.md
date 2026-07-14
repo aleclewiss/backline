@@ -134,10 +134,11 @@ chip once per project); insert falls back to the drag chip on older APIs.
 
 ## Chat assistant (optional)
 
-Settings → Chat assistant. Bring your own key — Anthropic, OpenAI, OpenRouter,
-or any OpenAI-compatible endpoint. Keys are stored in
-`~/.ace-sidebar/config.json` on your machine, never in a Live set. Generation
-works without any key.
+Settings → Chat assistant. The assistant is **your own AI** — add your own
+API key (Anthropic, OpenAI, OpenRouter, or any OpenAI-compatible endpoint)
+and that model is what assists you here. Keys are stored in
+`~/.ace-sidebar/config.json` on your machine, never in a Live set, and the
+UI never sees the key itself. Generation works without any key.
 
 ---
 
