@@ -43,8 +43,8 @@ You need: an NVIDIA GPU (8 GB works — the launcher applies low-VRAM-safe
 settings), Python (installed by the engine setup below), and Node 18+.
 
 1. **Set up the ACE-Step engine** — run `install_uv.bat` (Windows) or
-   `install_uv.sh`. Models download on first run. Engine details live in the
-   [ACE-Step documentation](./README-ACESTEP.md).
+   `install_uv.sh`. Models download on first run. Engine details are in the
+   [ACE-Step repo](https://github.com/ACE-Step/ACE-Step-1.5).
 2. **Build the Backline UI** (once, and after UI changes):
    ```
    cd ableton-sidebar/ui && npm install && npm run build
@@ -67,8 +67,8 @@ in `~/.ace-sidebar/config.json` on your machine. Generation needs no key.
 
 To be clear about credit: this repo is a fork of
 [ACE-Step/ACE-Step-1.5](https://github.com/ACE-Step/ACE-Step-1.5) — the model,
-the `acestep/` engine code, and the platform launcher scripts are theirs, and
-their documentation lives in **[README-ACESTEP.md](./README-ACESTEP.md)**.
+the `acestep/` engine code, and the platform launcher scripts are theirs;
+see their repo for the model's own documentation.
 
 My work is **Backline**: the entire [`ableton-sidebar/`](./ableton-sidebar/)
 directory (Electron shell, Node sidecar, React UI, Max for Live device),
