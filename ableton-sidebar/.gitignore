@@ -5,3 +5,6 @@ logs/
 # Re-include what the root Python .gitignore over-matches (lib/, package-lock.json)
 !sidecar/lib/
 !package-lock.json
+# Local-only leftovers, not part of the shipped app
+device/Sesh.amxd
+scripts/DragHelper.*

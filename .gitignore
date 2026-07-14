@@ -266,3 +266,4 @@ SESSION_STATUS.md
 *.err
 *.out
 lora_adapters/
+.claude/
